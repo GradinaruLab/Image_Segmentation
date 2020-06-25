@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
     long_description = f.read()
 
 
-with open("__init__.py", "r") as f:
+with open("img_seg_package/__init__.py", "r") as f:
     init = f.readlines()
 
 for line in init:
