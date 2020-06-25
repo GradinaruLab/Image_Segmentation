@@ -484,6 +484,8 @@ def single_image_analysis(fname, template_loc, dataframe_loc, capsid, animal, re
     template_height = np.shape(template)[0]
     template_width = np.shape(template)[1]
 
+    threshed_single = im_af > df.loc[inds, 'Area Threshold'].values[0]
+    
     im_bg = skimage.filters.gaussian(im_sub, df.loc[inds, 'Gaussian Size'].values[0], truncate = df.loc[inds, 'Truncation'].values[0])
     
     im_no_bg = im_sub - im_bg
@@ -507,4 +509,4 @@ def single_image_analysis(fname, template_loc, dataframe_loc, capsid, animal, re
 
     binary_rgb = np.dstack((binary_rem, binary_rem, binary_rem))
     
-    return(n_labels, im_p, binary_rgb)
+    return(n_labels, im_p, binary_rgb, threshed_single)

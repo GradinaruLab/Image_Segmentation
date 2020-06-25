@@ -87,7 +87,7 @@ def brightness_counter(im_labeled, im_pos, im_height, im_width, template_height,
     
     return(cell_list, cell_intensities)
 
-def cell_counter(filepath, gaussian_size = 5, truncation = 2, threshold = 1000, size_thresh = 0.5, min_size = 10):
+def cell_counter(filepath, gaussian_size = 5, truncation = 2, threshold = 1000, size_thresh = 0.5, min_size = 10, interpixel_distance = 0.75488, low_thresh = 1e6):
     # Start by loading in the template file. 
     template = np.load('template.npy')
 
@@ -123,9 +123,22 @@ def cell_counter(filepath, gaussian_size = 5, truncation = 2, threshold = 1000, 
     # Obtain the red (autofluorescent) and green (signal) channels of an image
     im_sig = skimage.img_as_float(im_channels['CH1'])
     im_af = skimage.img_as_float(im_channels['CH2'])
+    
+    # We can determine the histogram of the autofluorescent imate
+    hist_bin = skimage.exposure.histogram(im_af)
+    hist, bins = hist_bin
+    
+    # Using a very low threshold, we can identify what intensity the background occurs at
+    area_thresh = thresh_finder(np.diff(np.diff(hist)), bins, desired_thresh=low_thresh)*2
 
+    # We can threshold this image based on this intensity to get all pixels that comprise tissue
+    threshed_im = im_af > area_thresh
+
+    # By using this threshold, we can determine the total area
+    total_area = sum(sum(threshed_im))*(interpixel_distance**2)
+    
     # Unused variables are deleted to avoid memory error
-    del im_channels
+    del im_channels, threshed_im
     
     # Determine the ratio between the mean signal intensity and the mean autofluorescence intensity
     multiplication_ratio = np.mean(im_sig)/np.mean(im_af)
@@ -198,4 +211,4 @@ def cell_counter(filepath, gaussian_size = 5, truncation = 2, threshold = 1000, 
     del im_sub, output_file, trimmed_output_file, im_labeled
     
     # return the number of cells, the list of cells brightness is determined on, the list of the corresponding brightness, the threshold applied, the multiplication ratio, and the normalization values
-    return(n_labels, cell_list, cell_intensity_list, thresh, multiplication_ratio, min_val, max_val)
+    return(n_labels, cell_list, cell_intensity_list, thresh, multiplication_ratio, min_val, max_val, area_thresh, total_area)
