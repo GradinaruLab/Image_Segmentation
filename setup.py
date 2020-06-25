@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
     long_description = f.read()
 
 
-with open("tinypkg/__init__.py", "r") as f:
+with open("__init__.py", "r") as f:
     init = f.readlines()
 
 for line in init:
@@ -18,7 +18,7 @@ for line in init:
 
 
 setup(
-    name='Image_Segmentation',
+    name='img_seg_package',
     version=__version__,
     author=__author__,
     author_email=__email__,
