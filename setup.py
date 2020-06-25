@@ -18,7 +18,7 @@ for line in init:
 
 
 setup(
-    name='tissue_quantifier',
+    name='Image_Segmentation',
     version=__version__,
     author=__author__,
     author_email=__email__,
