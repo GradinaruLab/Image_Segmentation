@@ -15,7 +15,7 @@ import scipy.signal
 import glob
 import os
 
-import iris as iris
+import img_seg_package.iris as iris
 
 import tqdm as tqdm
 
@@ -89,7 +89,7 @@ def brightness_counter(im_labeled, im_pos, im_height, im_width, template_height,
 
 def cell_counter(filepath, gaussian_size = 5, truncation = 2, threshold = 1000, size_thresh = 0.5, min_size = 10, interpixel_distance = 0.75488, low_thresh = 1e6):
     # Start by loading in the template file. 
-    template = np.load('template.npy')
+    template = np.load('../template.npy')
 
     # Get the list of files in the indicated folder 
     file_lst = glob.glob(filepath + "*.tif")

@@ -14,8 +14,6 @@ import skimage.morphology
 import skimage.segmentation
 from scipy import ndimage as ndi
 
-import bebi103
-
 import bokeh
 from bokeh.models.widgets import Panel, Tabs
 from bokeh.io import output_file, show
