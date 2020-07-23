@@ -65,26 +65,37 @@ def brightness_counter(im_labeled, im_pos, im_height, im_width, template_height,
         # Create a list of the cells to quantify the brightness in using a random number generator without replacement  
         cell_list = np.random.choice(np.arange(1, np.max(im_labeled)), 1000, replace=False)
     else:
-        # If there are less than 1000 cells, create a list of all the cells to access
+        # If there are less than 100 cells, create a list of all the cells to access
         cell_list = np.arange(1, np.max(im_labeled) + 1)
     
     cell_intensities = {}
     
     # Create the cropped image to ensure that the image arrays are the same size. 
     im_pos_crop = im_pos[int(template_height/2 - 1):int(im_height - int(template_height/2)), int(template_width/2 - 1):int(im_width - int(template_width/2))]
+    
+    # Simplify labels to a Nx2 array, with an array of i and an array of j indices
+    nonzero_inds = im_labeled.nonzero()
+    
+    # Fill in an array of the cell labels for later boolean logic
+    labels = [im_labeled[i,j] for i,j in zip(nonzero_inds[0], nonzero_inds[1])]
+    
+    # Instantiate dictionary
+    cell_intensities = {}
  
     # Loop through the prepared cell list
     for count_value in cell_list:
         
-        # Obtain the index of the current cell
-        inds = (im_labeled == count_value)
+        # Get a list of i and of j indices
+        label_bool = (labels == count_value)
+        inds = (nonzero_inds[0][label_bool], nonzero_inds[1][label_bool])
         
-        # In the positive image, sum over the whole cell to get its intensity 
-        cell_intensity = np.sum(im_pos_crop[inds])/np.sum(inds)
+        # In the positive image, sum over the whole cell to get its intensity
+        intensities = im_pos_crop[inds]
+        cell_intensity = np.sum(intensities)/len(intensities)
         
         # Append this to a list of all cell intensities
         cell_intensities[str(count_value)] = cell_intensity
-    
+
     return(cell_list, cell_intensities)
 
 def cell_counter(filepath, gaussian_size = 5, truncation = 2, threshold = 1000, size_thresh = 0.5, min_size = 10, interpixel_distance = 0.75488, low_thresh = 1e6):
@@ -94,6 +105,9 @@ def cell_counter(filepath, gaussian_size = 5, truncation = 2, threshold = 1000, 
     # Get the list of files in the indicated folder 
     file_lst = glob.glob(filepath + "*.tif")
     
+    # Get the list of files in the indicated folder 
+    reduced_file_lst = glob.glob(filepath + "*CH1.tif")
+   
     # Using the approved microscope channels, determine which channels are present
     channels = iris.get_channel_lists(file_lst) 
     
@@ -176,14 +190,14 @@ def cell_counter(filepath, gaussian_size = 5, truncation = 2, threshold = 1000, 
     output_file = np.zeros_like(im_sub)
     
     # We can then loop over all the verified files and perform size and intensity thresholding. Doing this on the smaller files allows the analysis of larger images with less memory  
-    for f in tqdm.tqdm(verified_files):
+    for f in tqdm.tqdm(reduced_file_lst):
         # Get the corner of the image
         corner = corners[f]
         
         # Determine the regions of the image that are brighter than the determined threshold. Perform this over the same range as the template, since the template cannot perform partial matching on the edges. 
         binary_gauss = im_no_bg[corner[1] + int(template_height/2 - 1):corner[1] + im_size[1] - int(template_height/2), corner[0] + int(template_width/2 - 1):corner[0] + im_size[0] - int(template_width/2)] > thresh 
         binary_gauss = skimage.morphology.binary_closing(binary_gauss, skimage.morphology.disk(3))
-
+        
         # Perform feature matching to the template and threshold based on similarity
         im_feat = skimage.feature.match_template(im_sub[corner[1]:corner[1] + im_size[1], corner[0]:corner[0] + im_size[0]], template)
         binary_feat = im_feat > size_thresh
