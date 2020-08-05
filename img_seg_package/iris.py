@@ -26,10 +26,10 @@ def extract_xml(path):
     with open(path, "r+") as tif:
         mm = mmap.mmap(tif.fileno(), 0)
         midx = mm.find(b"<?xml")
-        xml = mm[midx:].decode('utf-8')
-
-    # force any unicode character into some decent ASCII approximation
-    return unicodedata.normalize('NFKD', xml).encode('ascii', 'ignore')
+        xml = mm[midx:].decode('utf-8', 'replace')
+        
+    # force any unicode character into some decent ASCII approximation 
+    return(unicodedata.normalize('NFKD', xml).encode('ascii', 'replace'))
 
 
 def position_info(path):

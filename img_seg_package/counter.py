@@ -6,6 +6,7 @@ import pandas as pd
 import skimage.feature
 import skimage.filters
 import skimage.filters.rank
+from skimage.filters import threshold_otsu
 import skimage.io
 import skimage.morphology
 import skimage.segmentation
@@ -98,7 +99,7 @@ def brightness_counter(im_labeled, im_pos, im_height, im_width, template_height,
 
     return(cell_list, cell_intensities)
 
-def cell_counter(filepath, gaussian_size = 5, truncation = 2, threshold = 1000, size_thresh = 0.5, min_size = 10, interpixel_distance = 0.75488, low_thresh = 1e6):
+def cell_counter(filepath, gaussian_size = 5, truncation = 2, threshold = 1000, size_thresh = 0.5, min_size = 10, interpixel_distance = 0.75488):
     # Start by loading in the template file. 
     template = np.load('../template.npy')
 
@@ -138,12 +139,8 @@ def cell_counter(filepath, gaussian_size = 5, truncation = 2, threshold = 1000, 
     im_sig = skimage.img_as_float(im_channels['CH1'])
     im_af = skimage.img_as_float(im_channels['CH2'])
     
-    # We can determine the histogram of the autofluorescent imate
-    hist_bin = skimage.exposure.histogram(im_af)
-    hist, bins = hist_bin
-    
-    # Using a very low threshold, we can identify what intensity the background occurs at
-    area_thresh = thresh_finder(np.diff(np.diff(hist)), bins, desired_thresh=low_thresh)*2
+    # Determine the threshold to discriminate tissue area from background
+    area_thresh = threshold_otsu(im_af, nbins=1024)
 
     # We can threshold this image based on this intensity to get all pixels that comprise tissue
     threshed_im = im_af > area_thresh

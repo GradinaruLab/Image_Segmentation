@@ -504,7 +504,7 @@ def single_image_analysis(fname, template_loc, dataframe_loc, capsid, animal, re
 
     # Load phase image
     im_p = skimage.img_as_float(skimage.io.imread(fname))[:,:,:2][int(template_height/2 - 1):int(im_height - int(template_height/2)), int(template_width/2 - 1):int(im_width - int(template_width/2))]
-
+    
     binary_rgb = np.dstack((binary_rem, binary_rem, binary_rem))
     
     return(n_labels, im_p, binary_rgb, threshed_single)
