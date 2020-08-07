@@ -462,10 +462,8 @@ def show_two_ims(im_1,
     
     return bokeh.layouts.gridplot([p_1, p_2], ncols=2)
 
-def single_image_analysis(fname, template_loc, dataframe_loc, capsid, animal, replicate):
+def single_image_analysis(fname, dataframe_loc, capsid, animal, replicate):
     df = pd.read_csv(dataframe_loc)
-    
-    df.head()
     
     inds = (df['Virus'] == capsid) & (df['Animal'] == animal) & (df['Replicate'] == replicate)
     
@@ -477,7 +475,7 @@ def single_image_analysis(fname, template_loc, dataframe_loc, capsid, animal, re
     im_height = np.shape(im_sub)[0]
     im_width = np.shape(im_sub)[1]
 
-    template = np.load(template_loc)
+    template = np.load('../template.npy')
 
     template_height = np.shape(template)[0]
     template_width = np.shape(template)[1]
