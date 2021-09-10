@@ -189,6 +189,9 @@ def imshow(im, color_mapper=None, plot_height=400, plot_width=None,
                               title=title,
                               toolbar_location=toolbar_location,
                               tools='pan,box_zoom,wheel_zoom,reset,save')
+    
+    p.output_backend = 'svg'
+    
     if no_ticks:
         p.xaxis.major_label_text_font_size = '0pt'
         p.yaxis.major_label_text_font_size = '0pt'
@@ -459,6 +462,9 @@ def show_two_ims(im_1,
     
     p_2.x_range = p_1.x_range
     p_2.y_range = p_1.y_range
+    
+    p_1.output_backend = "svg"
+    p_2.output_backend = "svg"
     
     return bokeh.layouts.gridplot([p_1, p_2], ncols=2)
 
