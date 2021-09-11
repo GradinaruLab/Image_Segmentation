@@ -22,7 +22,7 @@ from bokeh.plotting import figure
 bokeh.io.output_notebook()
 
 def imshow(im, color_mapper=None, plot_height=400, plot_width=None,
-           length_units='pixels', interpixel_distance=1.0,
+           length_units='µm', interpixel_distance=0.75488,
            x_range=None, y_range=None, colorbar=False,
            no_ticks=False, x_axis_label=None, y_axis_label=None,
            title=None, flip=True, return_im=False,
@@ -507,7 +507,7 @@ def single_image_analysis(fname, dataframe_loc, capsid, animal, replicate):
     im_labeled, n_labels = skimage.measure.label(binary_rem, background=0, return_num=True)
 
     # Load phase image
-    im_p = skimage.img_as_float(skimage.io.imread(fname))[:,:,:2][int(template_height/2 - 1):int(im_height - int(template_height/2)), int(template_width/2 - 1):int(im_width - int(template_width/2))]
+    im_p = np.dstack((im_af, im_sig, im_af))[int(template_height/2 - 1):int(im_height - int(template_height/2)), int(template_width/2 - 1):int(im_width - int(template_width/2))]
     
     binary_rgb = np.dstack((binary_rem, binary_rem, binary_rem))
     
